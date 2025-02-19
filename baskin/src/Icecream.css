@@ -1,0 +1,21 @@
+.baskinrabins {
+  display: flex;
+  gap: 20px;
+}
+.baskinrabins > li {
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+}
+.baskinrabins > li > img {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 20px;
+  border: 1px solid grey;
+}
+.baskinrabins > li > p {
+  text-align: center;
+  color: gray;
+  font-weight: 700;
+}
