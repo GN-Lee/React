@@ -1,47 +1,66 @@
 import { useState } from "react";
-import Price from "./Price";
-import Amount from "./Amount";
-
+import InputCheckers from "./InputCheckers";
+import Button from "./Button";
 function App() {
-  const [changeAmount, setChangeAmount] = useState([
-    { price: 15000, cnt: 0, maxCount: 12 },
-    { price: 30000, cnt: 0, maxCount: 3 },
-    { price: 10000, cnt: 0 },
+  const checkLength = (value, min, max) =>
+    min <= value.length && value.length <= max;
+  const hasSpecial = (value) => [..."!@$%^*_+"].some((v) => value.includes(v));
+  const hasAt = (value) => value.includes("@");
+
+  const [inputs, setInputs] = useState([
+    {
+      value: "",
+      placeholder: "아이디 입력하세요",
+      inputChange: (e) => {
+        setInputs((prev) => {
+          const newArr = [...prev];
+          newArr[0].value = e.target.value;
+          newArr[0].checkers[0].isValid = checkLength(e.target.value, 6, 20);
+          return newArr;
+        });
+      },
+      checkers: [{ text: "6~20글자 입력", isValid: false }],
+    },
+    {
+      value: "",
+      placeholder: "비밀번호 입력하세요",
+      inputChange: (e) => {
+        setInputs((prev) => {
+          const newArr = [...prev];
+          newArr[1].value = e.target.value;
+          newArr[1].checkers[0].isValid = checkLength(e.target.value, 8, 20);
+          newArr[1].checkers[1].isValid = hasSpecial(e.target.value);
+          return newArr;
+        });
+      },
+      checkers: [
+        { text: "8~20글자 입력", isValid: false },
+        { text: "특수문자 (!@$%^*_+~)", isValid: false },
+      ],
+    },
+    {
+      value: "",
+      placeholder: "이메일 입력하세요",
+      inputChange: (e) => {
+        setInputs((prev) => {
+          const newArr = [...prev];
+          newArr[2].value = e.target.value;
+          newArr[2].checkers[0].isValid = hasAt(e.target.value);
+          return newArr;
+        });
+      },
+      checkers: [{ text: "@이 필수", isValid: false }],
+    },
   ]);
-  const plus = (i) =>
-    setChangeAmount((prev) => {
-      const newArr = [...prev];
-      const { cnt, maxCount } = newArr[i];
-      newArr[i].cnt = cnt == maxCount ? cnt : cnt + 1;
-      return newArr;
-    });
-  const minus = (i) =>
-    setChangeAmount((prev) => {
-      const newArr = [...prev];
-      newArr[i].cnt = newArr[i].cnt == 0 ? 0 : newArr[i].cnt - 1;
-      return newArr;
-    });
-  const reset = (i) => {
-    setChangeAmount((prev) => {
-      const newArr = [...prev];
-      return newArr.map((v) => ({ ...v, cnt: 0 }));
-    });
-  };
 
   return (
     <>
-      <div style={{ display: "flex", flexDirection: "column" }}>
-        {changeAmount.map((v, i) => (
-          <>
-            <Price price={v.price * v.cnt} />
-            <Amount cnt={v.cnt} plus={() => plus(i)} minus={() => minus(i)} />
-          </>
-        ))}
-      </div>
-      <span>
-        총액:{changeAmount.map((v) => v.price * v.cnt).reduce((a, c) => a + c)}
-      </span>
-      <button onClick={reset}>태초마을로!!!!!</button>
+      {inputs.map((v) => (
+        <InputCheckers {...v} />
+      ))}
+      <Button
+        isValid={inputs.every((v) => v.checkers.every((v1) => v1.isValid))}
+      />
     </>
   );
 }
